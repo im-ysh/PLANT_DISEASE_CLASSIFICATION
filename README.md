@@ -87,7 +87,8 @@ display_random_image(train_loader, class_names)
 
 1. Clone or download the repository
 2. Upload dataset to the mentioned path (Google Drive or local directory)
-3. Open `cnn.ipynb` in Google Colab or Jupyter Notebook
+3. Open `PLANT_DISEASE_CLASSIFICATION 
+.ipynb` in Google Colab or Jupyter Notebook
 4. Run cells sequentially
 
 ---
