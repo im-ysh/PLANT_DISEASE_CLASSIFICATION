@@ -1,9 +1,9 @@
-# PLANT_DISEASE_CLASSIFICATION 
+# PLANT_DISEASE_DETECTION
 
 
 ---
 
-# 🌿 Plant Disease Classification using Custom CNN
+# 🌿 Plant Disease Detection using Custom CNN
 
 This project presents a **Convolutional Neural Network (CNN)**-based approach to classify plant diseases from leaf images. It’s built using **PyTorch** and trained on a dataset consisting of healthy and diseased leaves of Apple, Corn, and Grape.
 
