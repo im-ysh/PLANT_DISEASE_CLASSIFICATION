@@ -7,6 +7,17 @@ Original file is located at
     https://colab.research.google.com/drive/1iDL6gJ2DTKEaEcWGTAI_lZpgUUijQtKm
 """
 
+import os
+
+# Force install PyTorch before anything else
+os.system('pip install torch')
+
+# Now, import PyTorch
+import torch
+
+# Check if PyTorch is installed successfully
+print(torch.__version__)  # This will print the installed version of PyTorch
+
 import os # for OS
 import numpy as npcd  # for arrays
 import torch # for testing purpose
