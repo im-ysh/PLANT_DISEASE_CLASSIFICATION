@@ -82,9 +82,6 @@ display_random_image(train_loader, class_names)
 ```
 
 ---
-
-Got it! Here's a polished **📦 Libraries Used** section tailored for your README file:
-
 ---
 
 ## 📦 Libraries Used
@@ -102,7 +99,7 @@ This project utilizes the following Python libraries:
 
 ---
 
-Let me know if you want to include a `requirements.txt` or set this up for automatic environment setup!
+
 
 ## ▶️ How to Run
 
