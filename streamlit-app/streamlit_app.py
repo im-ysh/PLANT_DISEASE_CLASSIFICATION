@@ -3,10 +3,9 @@ import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
-import numpy as np
-import os
+import requests
 
-# Define the CNN model architecture
+# Define the same CNN model architecture you used during training
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
@@ -15,7 +14,9 @@ class CNN(nn.Module):
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(p=0.5)
+
         self.flattened_size = self._get_flattened_size()
+
         self.fc1 = nn.Linear(self.flattened_size, 128)
         self.fc2 = nn.Linear(128, 7)  # 7 classes
 
@@ -44,14 +45,19 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return x
 
+# Google Drive file ID
+file_id = '175Kvs2kRflcgP8A-tvSgiWlRbKZqz_5p'
+url = f"https://drive.google.com/uc?id={file_id}"
+
+# Download the model from Google Drive
+response = requests.get(url)
+with open("PLANT_DISEASE_DETECTION_model.pth", 'wb') as f:
+    f.write(response.content)
+
 # Load the model
 model = CNN()
-
-if os.path.exists('PLANT_DISEASE_DETECTION_model.pth'):
-    model.load_state_dict(torch.load('PLANT_DISEASE_DETECTION_model.pth', map_location=torch.device('cpu')))
-    model.eval()
-else:
-    st.error('❌ Model file not found! Please make sure PLANT_DISEASE_DETECTION_model.pth is uploaded.')
+model.load_state_dict(torch.load('PLANT_DISEASE_DETECTION_model.pth', map_location=torch.device('cpu')))
+model.eval()
 
 # Define the class names
 class_names = [
@@ -78,7 +84,7 @@ st.write("Upload an image of a plant leaf to predict its disease!")
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    image = Image.open(uploaded_file).convert('RGB')
+    image = Image.open(uploaded_file)
     st.image(image, caption='Uploaded Leaf Image', use_column_width=True)
 
     # Preprocess the image
@@ -90,4 +96,4 @@ if uploaded_file is not None:
         _, predicted = torch.max(outputs, 1)
         prediction = class_names[predicted.item()]
 
-    st.success(f"✅ Prediction: **{prediction}** 🌟")
+    st.success(f"Prediction: **{prediction}** 🌟")
