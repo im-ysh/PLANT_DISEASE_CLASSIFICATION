@@ -3,9 +3,9 @@ import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
-import requests
+import gdown  # <-- New import
 
-# Define the same CNN model architecture you used during training
+# Define the CNN model architecture
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
@@ -45,18 +45,19 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return x
 
-# Google Drive file ID
+# Download the model from Google Drive using gdown
 file_id = '175Kvs2kRflcgP8A-tvSgiWlRbKZqz_5p'
 url = f"https://drive.google.com/uc?id={file_id}"
 
-# Download the model from Google Drive
-response = requests.get(url)
-with open("PLANT_DISEASE_DETECTION_model.pth", 'wb') as f:
-    f.write(response.content)
+# Download only if file does not exist
+import os
+model_path = "PLANT_DISEASE_DETECTION_model.pth"
+if not os.path.exists(model_path):
+    gdown.download(url, model_path, quiet=False)
 
 # Load the model
 model = CNN()
-model.load_state_dict(torch.load('PLANT_DISEASE_DETECTION_model.pth', map_location=torch.device('cpu')))
+model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
 model.eval()
 
 # Define the class names
@@ -70,7 +71,7 @@ class_names = [
     'Grape___Black_rot'
 ]
 
-# Define transformation
+# Define image transformations
 transform = transforms.Compose([
     transforms.Resize((150, 150)),
     transforms.ToTensor(),
