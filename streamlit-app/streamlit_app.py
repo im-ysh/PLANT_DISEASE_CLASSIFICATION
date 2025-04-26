@@ -46,6 +46,7 @@ class CNN(nn.Module):
         return x
 
 # Google Drive file ID
+# https://drive.google.com/file/d/175Kvs2kRflcgP8A-tvSgiWlRbKZqz_5p
 file_id = '175Kvs2kRflcgP8A-tvSgiWlRbKZqz_5p'
 url = f"https://drive.google.com/uc?id={file_id}"
 
