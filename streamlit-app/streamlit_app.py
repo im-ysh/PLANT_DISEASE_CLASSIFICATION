@@ -45,11 +45,13 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return x
 
+
+
 # Google Drive file ID
-# https://drive.google.com/file/d/175Kvs2kRflcgP8A-tvSgiWlRbKZqz_5p
-file_id = '175Kvs2kRflcgP8A-tvSgiWlRbKZqz_5p'
+file_id = '1hU674ERKvl52xWoGLdICxeZYyMH8I6yI'
 url = f"https://drive.google.com/uc?id={file_id}"
 
+# Send HTTP request to download the file
 # Download the model from Google Drive
 response = requests.get(url)
 with open("PLANT_DISEASE_DETECTION_model.pth", 'wb') as f:
