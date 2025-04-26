@@ -3,9 +3,9 @@ import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
-import requests
+import os
 
-# Define the same CNN model architecture you used during training
+# Define the CNN model architecture (same as during training)
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
@@ -45,67 +45,62 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return x
 
+# Path to the quantized model file (directly from your project folder)
+model_path = "PLANT_DISEASE_DETECTION_model_quantized.pth"
 
+# Check if the model file exists, else error
+if not os.path.exists(model_path):
+    st.error("Model file not found. Please upload the model file first!")
+else:
+    # Load the model
+    model = CNN()
+    model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+    model.eval()
 
-# Google Drive file ID
-file_id = '1hU674ERKvl52xWoGLdICxeZYyMH8I6yI'
-url = f"https://drive.google.com/uc?id={file_id}"
+    # Define class names
+    class_names = [
+        'Apple___Apple_scab',
+        'Apple___Black_rot',
+        'Apple___Cedar_apple_rust',
+        'Apple___Healthy',
+        'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot',
+        'Corn_(maize)___Northern_Leaf_Blight',
+        'Grape___Black_rot'
+    ]
 
-# Send HTTP request to download the file
-# Download the model from Google Drive
-response = requests.get(url)
-with open("PLANT_DISEASE_DETECTION_model.pth", 'wb') as f:
-    f.write(response.content)
+    # Define image transformations
+    transform = transforms.Compose([
+        transforms.Resize((150, 150)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
 
-# Load the model
-model = CNN()
-model.load_state_dict(torch.load('PLANT_DISEASE_DETECTION_model.pth', map_location=torch.device('cpu')))
-model.eval()
+    # Streamlit App UI
+    st.title("🍀 Plant Disease Detection App")
+    st.markdown("Upload a **plant leaf image** below, and I'll predict its disease class! 🌟")
 
-# Define the class names
-class_names = [
-    'Apple___Apple_scab',
-    'Apple___Black_rot',
-    'Apple___Cedar_apple_rust',
-    'Apple___Healthy',
-    'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot',
-    'Corn_(maize)___Northern_Leaf_Blight',
-    'Grape___Black_rot'
-]
+    uploaded_file = st.file_uploader("📤 Upload Image Here...", type=["jpg", "jpeg", "png"])
 
-# Define transformation
-transform = transforms.Compose([
-    transforms.Resize((150, 150)),
-    transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-])
+    if uploaded_file is not None:
+        try:
+            image = Image.open(uploaded_file)
+            image = image.convert('RGB')
 
-# Streamlit app UI
-st.title("🌿 Plant Disease Detection App")
-st.write("Upload an image of a plant leaf to predict its disease!")
+            st.image(image, caption='Uploaded Leaf Image', use_column_width=True)
 
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+            # Preprocess
+            img = transform(image).unsqueeze(0)  # Add batch dimension
 
-if uploaded_file is not None:
-    try:
-        # Open the image and convert it to RGB to ensure consistent format
-        image = Image.open(uploaded_file)
-        image = image.convert('RGB')  # Convert to RGB if not already
+            # Predict
+            with torch.no_grad():
+                outputs = model(img)
+                _, predicted = torch.max(outputs, 1)
+                prediction = class_names[predicted.item()]
 
-        st.image(image, caption='Uploaded Leaf Image', use_column_width=True)
+            st.success(f"✅ Predicted Disease: **{prediction}**")
 
-        # Preprocess the image
-        image = transform(image).unsqueeze(0)  # Add batch dimension
-
-        # Make prediction
-        with torch.no_grad():
-            outputs = model(image)
-            _, predicted = torch.max(outputs, 1)
-            prediction = class_names[predicted.item()]
-
-        st.success(f"Prediction: **{prediction}** 🌟")
-
-    except Exception as e:
-        # Handle any errors related to image processing
-        st.error("⚠️ Failed to process the image. Please upload a valid image file.")
-        st.error(f"Error details: {e}")
+        except Exception as e:
+            st.error("❌ Oops! Could not process the image.")
+            st.error(f"Error details: {e}")
+    else:
+        st.info("Please upload a leaf image to start prediction.")
