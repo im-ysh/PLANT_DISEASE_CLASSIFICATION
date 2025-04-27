@@ -1,4 +1,7 @@
 import streamlit as st
+import os
+os.environ["STREAMLIT_FILE_WATCHER_TYPE"] = "none"
+
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
