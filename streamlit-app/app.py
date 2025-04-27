@@ -49,7 +49,8 @@ class CNN(nn.Module):
         return x
 
 # Path to the quantized model file (directly from your project folder)
-model_path = "PLANT_DISEASE_DETECTION_model_quantized.pth"
+model_path = "PLANT_DISEASE_DETECTION_model.pth"
+
 
 # Check if the model file exists, else error
 if not os.path.exists(model_path):
