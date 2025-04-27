@@ -57,7 +57,13 @@ if not os.path.exists(model_path):
 else:
     # Load the model
     model = CNN()
+    # model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+    try:
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+    model.eval()
+except Exception as e:
+    st.error(f"Error loading the model: {e}")
+
     model.eval()
 
     # Define class names
