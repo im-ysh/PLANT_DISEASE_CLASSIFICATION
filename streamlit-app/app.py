@@ -58,7 +58,7 @@ else:
     # Load the model
     model = CNN()
     # model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
-    try:
+try:
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
     model.eval()
 except Exception as e:
