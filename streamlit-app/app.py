@@ -46,7 +46,7 @@ class CNN(nn.Module):
         return x
 
 # Define model path
-model_path = "PLANT_DISEASE_DETECTION_model.pth"
+model_path = "PLANT_DISEASE_DETECTION_model.pth" 
 
 # Streamlit UI and image processing
 st.title("🍀 Plant Disease Detection App")
