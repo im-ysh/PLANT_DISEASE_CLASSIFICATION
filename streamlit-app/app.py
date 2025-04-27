@@ -1,14 +1,11 @@
 import streamlit as st
 import os
-os.environ["STREAMLIT_FILE_WATCHER_TYPE"] = "none"
-
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
-import os
 
-# Define the CNN model architecture (same as during training)
+# Define the CNN model architecture
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
@@ -48,68 +45,62 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return x
 
-# Path to the quantized model file (directly from your project folder)
+# Define model path
 model_path = "PLANT_DISEASE_DETECTION_model.pth"
 
-# Check if the model file exists, else error
-if not os.path.exists(model_path):
-    st.error("Model file not found. Please upload the model file first!")
+# Streamlit UI and image processing
+st.title("🍀 Plant Disease Detection App")
+st.markdown("Upload a **plant leaf image** below, and I'll predict its disease class! 🌟")
+
+uploaded_file = st.file_uploader("📤 Upload Image Here...", type=["jpg", "jpeg", "png"])
+
+if uploaded_file is not None:
+    try:
+        # Check if model file exists before attempting to load it
+        if not os.path.exists(model_path):
+            raise FileNotFoundError("Model file not found. Please upload the model file first!")
+
+        # Load the model
+        model = CNN()
+        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+        model.eval()
+
+        # Define class names
+        class_names = [
+            'Apple___Apple_scab',
+            'Apple___Black_rot',
+            'Apple___Cedar_apple_rust',
+            'Apple___Healthy',
+            'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot',
+            'Corn_(maize)___Northern_Leaf_Blight',
+            'Grape___Black_rot'
+        ]
+
+        # Define image transformations
+        transform = transforms.Compose([
+            transforms.Resize((150, 150)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
+
+        image = Image.open(uploaded_file)
+        image = image.convert('RGB')
+
+        st.image(image, caption='Uploaded Leaf Image', use_column_width=True)
+
+        # Preprocess
+        img = transform(image).unsqueeze(0)  # Add batch dimension
+
+        # Predict
+        with torch.no_grad():
+            outputs = model(img)
+            _, predicted = torch.max(outputs, 1)
+            prediction = class_names[predicted.item()]
+
+        st.success(f"✅ Predicted Disease: **{prediction}**")
+
+    except Exception as e:
+        st.error("❌ Oops! Could not process the image.")
+        st.error(f"Error details: {e}")
 else:
-    # Load the model
-    model = CNN()
-    # model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
-try:
-    model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
-    model.eval()
-except Exception as e:
-    st.error(f"Error loading the model: {e}")
-
-    model.eval()
-
-    # Define class names
-    class_names = [
-        'Apple___Apple_scab',
-        'Apple___Black_rot',
-        'Apple___Cedar_apple_rust',
-        'Apple___Healthy',
-        'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot',
-        'Corn_(maize)___Northern_Leaf_Blight',
-        'Grape___Black_rot'
-    ]
-
-    # Define image transformations
-    transform = transforms.Compose([
-        transforms.Resize((150, 150)),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ])
-
-    # Streamlit App UI
-    st.title("🍀 Plant Disease Detection App")
-    st.markdown("Upload a **plant leaf image** below, and I'll predict its disease class! 🌟")
-
-    uploaded_file = st.file_uploader("📤 Upload Image Here...", type=["jpg", "jpeg", "png"])
-
-    if uploaded_file is not None:
-        try:
-            image = Image.open(uploaded_file)
-            image = image.convert('RGB')
-
-            st.image(image, caption='Uploaded Leaf Image', use_column_width=True)
-
-            # Preprocess
-            img = transform(image).unsqueeze(0)  # Add batch dimension
-
-            # Predict
-            with torch.no_grad():
-                outputs = model(img)
-                _, predicted = torch.max(outputs, 1)
-                prediction = class_names[predicted.item()]
-
-            st.success(f"✅ Predicted Disease: **{prediction}**")
-
-        except Exception as e:
-            st.error("❌ Oops! Could not process the image.")
-            st.error(f"Error details: {e}")
-    else:
-        st.info("Please upload a leaf image to start prediction.")
+    st.info("Please upload a leaf image to start prediction.")
