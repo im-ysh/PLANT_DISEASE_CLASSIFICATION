@@ -88,7 +88,7 @@ if uploaded_file is not None:
         image = Image.open(uploaded_file)
         image = image.convert('RGB')
 
-        st.image(image, caption='Uploaded Leaf Image', use_column_width=True)
+        st.image(image, caption='Uploaded Leaf Image', use_container_width=True)
 
         # Preprocess
         img = transform(image).unsqueeze(0)  # Add batch dimension
