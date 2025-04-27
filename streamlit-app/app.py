@@ -56,9 +56,10 @@ uploaded_file = st.file_uploader("📤 Upload Image Here...", type=["jpg", "jpeg
 
 if uploaded_file is not None:
     try:
-        # Check if model file exists before attempting to load it
+        # Check if the model file exists before attempting to load it
         if not os.path.exists(model_path):
-            raise FileNotFoundError("Model file not found. Please upload the model file first!")
+            st.error("❌ Model file not found. Please upload the model file first!")
+            st.stop()
 
         # Load the model
         model = CNN()
@@ -83,6 +84,7 @@ if uploaded_file is not None:
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])
 
+        # Open and process image
         image = Image.open(uploaded_file)
         image = image.convert('RGB')
 
@@ -99,8 +101,10 @@ if uploaded_file is not None:
 
         st.success(f"✅ Predicted Disease: **{prediction}**")
 
+    except FileNotFoundError as fnf_error:
+        st.error(f"❌ Error: {fnf_error}")
     except Exception as e:
-        st.error("❌ Oops! Could not process the image.")
+        st.error(f"❌ Oops! Could not process the image.")
         st.error(f"Error details: {e}")
 else:
     st.info("Please upload a leaf image to start prediction.")
